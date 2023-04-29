@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import axios from 'axios';
-import { formatVariables, formatPalette } from './utilities';
+import { formatPaletteAndVariables } from './utilities';
 import { Style } from './types';
 
 interface Library {
@@ -47,6 +47,12 @@ export const useStyles = (componentName: string) => {
   return component;
 };
 
+export const useVariables = () => {
+  const { variables } = useContext(LibraryContext);
+
+  return variables;
+};
+
 export const LibraryProvider = ({ children }: React.PropsWithChildren) => {
   const [styles, setStyles] = React.useState<Style[]>([]);
   const [variables, setVariables] = React.useState<Record<string, string | number>>({});
@@ -63,10 +69,7 @@ export const LibraryProvider = ({ children }: React.PropsWithChildren) => {
 
       setStyles(stylesData.data as Style[]);
 
-      const formattedPalette = formatPalette(paletteData.data[0]);
-      const formattedVariables = formatVariables(variablesData.data[0]);
-
-      setVariables({ ...formattedPalette, ...formattedVariables });
+      setVariables(formatPaletteAndVariables(paletteData.data[0], variablesData.data));
 
       setStatus({ ...status, isLoading: false });
     } catch(e: any) {
