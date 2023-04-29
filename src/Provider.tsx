@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import axios from 'axios';
 import { formatVariables, formatPalette } from './utilities';
+import { Style } from './types';
 
 interface Library {
   status: {
@@ -8,7 +9,7 @@ interface Library {
     isError: boolean;
     error: null | string;
   };
-  styles: Record<string, any>[];
+  styles: Style[];
   variables: Record<string, string | number>;
 }
 
@@ -39,13 +40,15 @@ export const useLibrary = (libraryId: string) => {
 export const useStyles = (componentName: string) => {
   const { styles } = useContext(LibraryContext);
 
-  const component = styles.find(el => el.componentName === componentName) || {};
+  const component = styles.find(el => el.component === componentName);
+
+  if (!component) throw new Error('Unexpected error');
 
   return component;
 };
 
 export const LibraryProvider = ({ children }: React.PropsWithChildren) => {
-  const [styles, setStyles] = React.useState([]);
+  const [styles, setStyles] = React.useState<Style[]>([]);
   const [variables, setVariables] = React.useState<Record<string, string | number>>({});
   const [status, setStatus] = React.useState({ isLoading: true, isError: false, error: null });
 
@@ -58,7 +61,7 @@ export const LibraryProvider = ({ children }: React.PropsWithChildren) => {
       const { data: paletteData } = await axios.get(`https://bls.ngrok.io/design-poc-api/design/palette?libraryId=${library._id}&$limit=1000`);
       const { data: variablesData } = await axios.get(`https://bls.ngrok.io/design-poc-api/design/variable?libraryId=${library._id}&$limit=1000`);
 
-      setStyles(stylesData.data);
+      setStyles(stylesData.data as Style[]);
 
       const formattedPalette = formatPalette(paletteData.data[0]);
       const formattedVariables = formatVariables(variablesData.data[0]);

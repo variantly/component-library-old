@@ -22,3 +22,13 @@ export interface Variable extends Resource {
   value: string;
   libraryId?: string;
 }
+
+export interface Style extends Resource {
+  libraryId: string;
+  accountId: string;
+  component: string;
+  variants: {
+    name: string;
+    styles: Record<string, any>;
+  }[];
+}
