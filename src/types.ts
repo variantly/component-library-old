@@ -23,7 +23,7 @@ export interface Variable extends Resource {
   libraryId?: string;
 }
 
-export interface Style extends Resource {
+export interface Component extends Resource {
   libraryId: string;
   accountId: string;
   component: string;

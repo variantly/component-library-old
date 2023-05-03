@@ -11,19 +11,23 @@ export const addImportantToStyles = (styles: Record<string, string>) => {
 };
 
 export const formatVariables = (variables: Variable[]): Record<string, string | number> => {
-  return variables.reduce((acc: Record<string, string | number>, curr) => {
-    acc[curr.key] = acc[curr.value];
+  const data =  variables.reduce((acc: Record<string, string | number>, curr) => {
+    acc[curr.key] = curr.value;
     return acc;
   }, {});
+
+  return data;
 };
 
 export const formatPalette = (palette?: Palette): Record<string, string | number> => {
   if (!palette) return {};
 
-  return palette.colors.reduce((acc: Record<string, string | number>, curr) => {
-    acc[curr.key] = acc[curr.rgb];
+  const data = palette.colors.reduce((acc: Record<string, string | number>, curr) => {
+    acc[curr.key] = curr.rgb;
     return acc;
   }, {});
+
+  return data;
 };
 
 export const formatPaletteAndVariables = (palette?: Palette, variables?: Variable[]): Record<string, string | number> => {
@@ -37,11 +41,21 @@ export const formatPaletteAndVariables = (palette?: Palette, variables?: Variabl
 }
 
 export const setCSSValuesFromVariables = (styles: Record<string, any>, variables: Record<string, string | number>) => {
-  return _cloneDeepWith(styles, (value) => {
-    if (typeof value === 'string' && value[0] === '$') {
-      return variables[value];
+  for (let k in styles) {
+    if (typeof styles[k] === 'object') {
+      for (let j in styles[k]) {
+        if (styles[k][j]?.[0] === '$') {
+          const cssStyle = variables[styles[k][j]];
+          styles[k][j] = cssStyle;
+        }
+      }
+    } else {
+      if (styles[k]?.[0] === '$') {
+        const cssStyle = variables[styles[k]];
+        styles[k] = cssStyle;
+      }
     }
+  }
 
-    return value;
-  });
-};
+  return styles;
+}

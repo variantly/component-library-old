@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import axios from 'axios';
 import { formatPaletteAndVariables } from './utilities';
-import { Style } from './types';
+import { Component } from './types';
 
 interface Library {
   status: {
@@ -9,12 +9,12 @@ interface Library {
     isError: boolean;
     error: null | string;
   };
-  styles: Style[];
+  components: Component[];
   variables: Record<string, string | number>;
 }
 
 const initialState = {
-  styles: [],
+  components: [],
   variables: {},
   status: {
     isLoading: true,
@@ -38,11 +38,9 @@ export const useLibrary = (libraryId: string) => {
 };
 
 export const useStyles = (componentName: string) => {
-  const { styles } = useContext(LibraryContext);
+  const { components } = useContext(LibraryContext);
 
-  const component = styles.find(el => el.component === componentName);
-
-  if (!component) throw new Error('Unexpected error');
+  const component = components.find(el => el.component === componentName);
 
   return component;
 };
@@ -54,7 +52,7 @@ export const useVariables = () => {
 };
 
 export const LibraryProvider = ({ children }: React.PropsWithChildren) => {
-  const [styles, setStyles] = React.useState<Style[]>([]);
+  const [components, setComponents] = React.useState<Component[]>([]);
   const [variables, setVariables] = React.useState<Record<string, string | number>>({});
   const [status, setStatus] = React.useState({ isLoading: true, isError: false, error: null });
 
@@ -63,11 +61,11 @@ export const LibraryProvider = ({ children }: React.PropsWithChildren) => {
       setStatus({ ...status, isLoading: true });
       const { data: library } = await axios.get(`https://bls.ngrok.io/design-poc-api/design/library/${libraryId}`);
 
-      const { data: stylesData } = await axios.get(`https://bls.ngrok.io/design-poc-api/design/style?libraryId=${library._id}&$limit=1000`);
+      const { data: componentsData } = await axios.get(`https://bls.ngrok.io/design-poc-api/design/style?libraryId=${library._id}&$limit=1000`);
       const { data: paletteData } = await axios.get(`https://bls.ngrok.io/design-poc-api/design/palette?libraryId=${library._id}&$limit=1000`);
       const { data: variablesData } = await axios.get(`https://bls.ngrok.io/design-poc-api/design/variable?libraryId=${library._id}&$limit=1000`);
 
-      setStyles(stylesData.data as Style[]);
+      setComponents(componentsData.data as Component[]);
 
       setVariables(formatPaletteAndVariables(paletteData.data[0], variablesData.data));
 
@@ -78,7 +76,7 @@ export const LibraryProvider = ({ children }: React.PropsWithChildren) => {
   };
 
   return (
-    <LibraryContext.Provider value={{ styles, status, variables }}>
+    <LibraryContext.Provider value={{ components, status, variables }}>
       <LibraryUpdateContext.Provider value={setLibrary}>
         {children}
       </LibraryUpdateContext.Provider>
