@@ -59,11 +59,11 @@ export const LibraryProvider = ({ children }: React.PropsWithChildren) => {
   const setLibrary = async (libraryId: string) => {
     try {
       setStatus({ ...status, isLoading: true });
-      const { data: library } = await axios.get(`https://bls.ngrok.io/design-poc-api/design/library/${libraryId}`);
+      // const { data: library } = await axios.get(`https://bls.ngrok.io/design-poc-api/design/library/${libraryId}`);
 
-      const { data: componentsData } = await axios.get(`https://bls.ngrok.io/design-poc-api/design/style?libraryId=${library._id}&$limit=1000`);
-      const { data: paletteData } = await axios.get(`https://bls.ngrok.io/design-poc-api/design/palette?libraryId=${library._id}&$limit=1000`);
-      const { data: variablesData } = await axios.get(`https://bls.ngrok.io/design-poc-api/design/variable?libraryId=${library._id}&$limit=1000`);
+      const { data: componentsData } = await axios.get(`https://bls.ngrok.io/design-poc-api/design/style?libraryId=${libraryId}&$limit=1000`);
+      const { data: paletteData } = await axios.get(`https://bls.ngrok.io/design-poc-api/design/palette?libraryId=${libraryId}&$limit=1000`);
+      const { data: variablesData } = await axios.get(`https://bls.ngrok.io/design-poc-api/design/variable?libraryId=${libraryId}&$limit=1000`);
 
       setComponents(componentsData.data as Component[]);
 
